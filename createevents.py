@@ -1,5 +1,5 @@
-#v2
 # File for the creation of events and adding them to the users calendar
+#v3 creates events based directly of a canvas assigment
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -20,6 +20,17 @@ DAYS_AHEAD = 7
 WORK_START_HOUR = 10
 WORK_END_HOUR = 22
 
+# Canvas Assignment Metadata Structure
+CANVAS_ASSIGNMENT_FIELDS = {
+    'id': None,  # Long: Unique Assignment ID
+    'name': None,  # String: Title of the assignment
+    'dueAt': None,  # OffsetDateTime: Date and time due
+    'description': None,  # String: Raw HTML assignment instructions
+    'plain_text_description': None,  # String: Instructions with all HTML tags stripped out
+    'canvas_file_links': [],  # List<String>: Direct URLs to hosted files (PDFs, docs)
+    'external_links': [],  # List<String>: URLs to external resources (YouTube, IDEs, etc.)
+}
+
 def create_event(service, summary, description, start_time, end_time):
     event = {
         'summary': summary,
@@ -34,6 +45,37 @@ def create_event(service, summary, description, start_time, end_time):
         },
     }
     return service.events().insert(calendarId=CALENDAR_ID, body=event).execute()
+
+def create_event_from_canvas_assignment(service, assignment):
+    """
+    Create a calendar event from a Canvas assignment.
+    
+    Args:
+        service: Google Calendar service instance
+        assignment: Canvas assignment dict with fields: name, dueAt, plain_text_description, etc.
+    
+    Returns:
+        Created event object from Google Calendar
+    """
+    summary = assignment.get('name', 'Canvas Assignment')
+    description = assignment.get('plain_text_description', assignment.get('description', ''))
+    
+    # Add file and external links to description
+    if assignment.get('canvas_file_links'):
+        description += '\n\nFiles:\n' + '\n'.join(assignment['canvas_file_links'])
+    if assignment.get('external_links'):
+        description += '\n\nExternal Links:\n' + '\n'.join(assignment['external_links'])
+    
+    due_time = assignment.get('dueAt')
+    if not due_time:
+        print(f"Assignment '{summary}' has no due date.")
+        return None
+    
+    # Parse due time if it's a string
+    if isinstance(due_time, str):
+        due_time = datetime.datetime.fromisoformat(due_time.replace('Z', '+00:00'))
+    
+    return create_event(service, summary, description, due_time, due_time)
 
 def find_first_available_week_slot(events, start, duration_minutes, days=DAYS_AHEAD):
     week_windows = day_window_boundaries(start, days)
