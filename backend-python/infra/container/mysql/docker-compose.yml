@@ -1,0 +1,19 @@
+services:
+  mysql:
+    build:
+      context: .
+    container_name: ai-planner-mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ai-planner-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  ai-planner-network:
+    driver: bridge
