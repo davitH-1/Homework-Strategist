@@ -1,12 +1,14 @@
+#v2
 # File for the creation of events and adding them to the users calendar
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-from datetime import datetime, timedelta
+import datetime
+from datetime import timedelta
 import os.path
 import pickle
 
-from findfreeslots import find_free_slots, authenticate, next_10am_local, fetch_events, next_10pm_local
+from findfreeslots import find_free_slots, authenticate, next_10am_local, fetch_events, parse_event_time, day_window_boundaries
 
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/calendar']
@@ -14,6 +16,9 @@ TOKEN_PATH = 'token.pickle'
 CREDENTIALS_FILE = 'credentials.json'
 CALENDAR_ID = 'hackathon'  # Replace with actual calendar ID if needed
 SEARCH_WINDOW_HOURS = 12
+DAYS_AHEAD = 7
+WORK_START_HOUR = 10
+WORK_END_HOUR = 22
 
 def create_event(service, summary, description, start_time, end_time):
     event = {
@@ -29,6 +34,16 @@ def create_event(service, summary, description, start_time, end_time):
         },
     }
     return service.events().insert(calendarId=CALENDAR_ID, body=event).execute()
+
+def find_first_available_week_slot(events, start, duration_minutes, days=DAYS_AHEAD):
+    week_windows = day_window_boundaries(start, days)
+    for window_start, window_end in week_windows:
+        window_events = [event for event in events if parse_event_time(event['end']) > window_start and parse_event_time(event['start']) < window_end]
+        free_slots = find_free_slots(window_events, window_start, window_end, timedelta(minutes=duration_minutes))
+        if free_slots:
+            return free_slots[0]
+    return None
+
 
 def main():
     # Authenticate and build service
@@ -47,19 +62,22 @@ def main():
         print("It is after 10pm, cannot create event.")
         return
 
-    # Find free slots
+    # Find free slots for the week
     window_start = max(next_10am_local(), now)
-    window_end = today_10pm
-    events = fetch_events(service, window_start, window_end)
-    free_slots = find_free_slots(events, window_start, window_end, timedelta(minutes=duration_minutes))
-
-    if not free_slots:
-        print("No free slots available for the event.")
+    week_windows = day_window_boundaries(window_start, DAYS_AHEAD)
+    if not week_windows:
+        print("There are no valid scheduling windows for the next week.")
         return
 
-    # Use the first available slot
-    start_time, end_time = free_slots[0]
-    # Adjust end_time to fit the duration
+    window_end = week_windows[-1][1]
+    events = fetch_events(service, window_start, window_end)
+    first_slot = find_first_available_week_slot(events, window_start, duration_minutes)
+
+    if not first_slot:
+        print("No free slots available for the event in the next week.")
+        return
+
+    start_time, end_time = first_slot
     actual_end_time = start_time + timedelta(minutes=duration_minutes)
     if actual_end_time > end_time:
         print("First slot is too short.")
