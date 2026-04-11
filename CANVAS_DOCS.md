@@ -31,7 +31,7 @@ Retrieves all assignments for a specific course ID.
     ```
 
 ### 3. Get Specific Assignment Details
-Fetches metadata for a single assignment, including description and due dates.
+Fetches metadata for a single assignment, including processed description fields.
 * **Endpoint**: `GET /courses/{courseId}/assignments/{assignmentId}`
 * **Command**:
     ```zsh
@@ -50,12 +50,17 @@ Fetches metadata for a single assignment, including description and due dates.
 | `courseCode` | String | Short code (e.g., "CS 1D") |
 
 ### CanvasAssignment
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | Long | Unique Assignment ID |
-| `name` | String | Title of the assignment |
-| `dueAt` | OffsetDateTime | Date and time due |
-| `description` | String | HTML assignment instructions |
+The service now automatically parses the raw HTML description from Canvas into multiple helpful formats:
+
+| Field | Type | Description                                    |
+| :--- | :--- |:-----------------------------------------------|
+| `id` | Long | Unique Assignment ID                           |
+| `name` | String | Title of the assignment                        |
+| `dueAt` | OffsetDateTime | Date and time due                              |
+| `description` | String | Raw HTML assignment instructions               |
+| `plain_text_description` | String | Instructions with all HTML tags stripped out   |
+| `canvas_file_links` | List\<String\> | Direct URLs to hosted files (PDFs, docs)       |
+| `external_links` | List\<String\> | URLs to external resources (YouTube, IDEs, etc.)|
 
 ---
 
