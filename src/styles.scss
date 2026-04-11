@@ -1,0 +1,36 @@
+/* Global tokens */
+:root {
+  --app-text: #1a1a1a;
+  --app-muted: #5c5c5c;
+  --app-border: #e8e8e8;
+  --app-accent: #1a73e8;
+  --app-bg: #fafafa;
+}
+
+*,
+*::before,
+*::after {
+
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+  line-height: 1.45;
+}
+
+code {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+}
