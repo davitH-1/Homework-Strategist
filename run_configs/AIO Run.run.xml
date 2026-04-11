@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="AIO Run" type="CompoundRunConfigurationType">
-    <toRun name="main" type="PythonConfigurationType" />
+    <toRun name="Angular Frontend" type="js.build_tools.npm" />
+    <toRun name="CanvasApplication" type="SpringBootApplicationConfigurationType" />
     <method v="2" />
   </configuration>
 </component>
