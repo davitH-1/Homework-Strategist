@@ -2,6 +2,7 @@ package com.example.homeworkstrateguistsbgradle.canvas.service;
 
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasAssignment;
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasCourse;
+import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasUserProfile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -67,5 +68,12 @@ public class CanvasApiService {
             System.err.println("API ERROR: " + e.getMessage());
             return null;
         }
+    }
+
+    public CanvasUserProfile getUserProfile() {
+        String url = "https://" + baseDomain + "/api/v1/users/self/profile";
+
+        // We use the same callCanvasApi helper you already built
+        return callCanvasApi(url, new ParameterizedTypeReference<CanvasUserProfile>() {});
     }
 }

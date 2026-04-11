@@ -2,6 +2,7 @@ package com.example.homeworkstrateguistsbgradle.canvas.controller;
 
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasAssignment;
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasCourse;
+import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasUserProfile;
 import com.example.homeworkstrateguistsbgradle.canvas.service.CanvasApiService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -34,5 +35,10 @@ public class CanvasController {
             @PathVariable Long courseId,
             @PathVariable Long assignmentId) {
         return canvasService.getAssignmentDetails(courseId, assignmentId);
+    }
+
+    @GetMapping("/profile")
+    public CanvasUserProfile getProfile() {
+        return canvasService.getUserProfile();
     }
 }
