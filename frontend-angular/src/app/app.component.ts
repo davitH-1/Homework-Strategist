@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import {CanvasAuthComponent} from './canvasTokenWidget/canvas-auth.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, CanvasAuthComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

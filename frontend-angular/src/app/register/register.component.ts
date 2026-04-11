@@ -9,10 +9,11 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { GoogleAuthService } from '../services/google-auth.service';
+import {CanvasAuthComponent} from '../canvasTokenWidget/canvas-auth.component';
 
 @Component({
   selector: 'app-register',
-  imports: [RouterLink],
+  imports: [RouterLink, CanvasAuthComponent],
   template: `
     <section class="panel">
       <a routerLink="/" class="back">← Home</a>
@@ -113,6 +114,7 @@ import { GoogleAuthService } from '../services/google-auth.service';
           <div #googleButtonHost class="google-host"></div>
         </div>
       }
+      <app-canvas-auth></app-canvas-auth>
     </section>
   `,
   styles: `

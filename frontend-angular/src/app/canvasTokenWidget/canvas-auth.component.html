@@ -1,0 +1,57 @@
+<div class="auth-container">
+
+  <div class="input-card">
+    <label for="token">Canvas Access Token</label>
+    <div class="input-group">
+      <input
+        type="text"
+        class="token-input"
+        id="token"
+        name="canvas-token-field-{{uniqueId}}"
+        autocomplete="off"
+        spellcheck="false"
+        [disabled]="isLinked"
+        [(ngModel)]="accessToken"
+        placeholder="Enter your token here..."
+      />
+      <button
+        class="link-account-btn"
+        [class.retry-btn]="isLinked"
+        (click)="onSubmitToken()"
+        [disabled]="isLoading">
+        {{ isLinked ? 'Unlink Account' : (isLoading ? 'Checking...' : 'Link Account') }}
+      </button>
+    </div>
+    <small>Found in Canvas > Settings > Approved Integrations</small>
+  </div>
+
+  <div class="profile-widget" *ngIf="showProfileWidget && profile && !isLinked">
+    <h3>Is this you?</h3>
+
+    <div class="profile-card">
+      <div class="avatar-wrapper">
+        <img
+          [src]="profile.avatar_url"
+          alt="Canvas Profile Picture"
+          class="avatar-image"
+        />
+      </div>
+
+      <div class="profile-info">
+        <span class="name">{{ profile.name }}</span>
+        <span class="email">{{ profile.primary_email }}</span>
+        <span class="id">Canvas ID: {{ profile.id }}</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="confirm-btn" (click)="onConfirmIdentity()">
+        Yes, that's me
+      </button>
+      <button class="retry-btn" (click)="onReset()">
+        No, wrong token
+      </button>
+    </div>
+  </div>
+
+</div>
