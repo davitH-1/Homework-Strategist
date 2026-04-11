@@ -1,0 +1,6 @@
+rootProject.name = 'Homework-Strategist'
+
+// This makes the project dynamic
+include 'backend-java'
+include 'backend-python'
+include 'frontend-angular'
