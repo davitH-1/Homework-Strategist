@@ -48,4 +48,8 @@ bin/
 .env
 
 # idea
-.idea
+.idea 
+
+#git ignore for crednetials a
+credentials.json
+token.pickle
