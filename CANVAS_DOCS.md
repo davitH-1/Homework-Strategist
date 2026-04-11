@@ -14,7 +14,15 @@ This Spring Boot service acts as a secure middleware for interacting with the **
 
 ## 🚀 API Endpoints
 
-### 1. Get All Active Courses
+### 1. Get User Profile
+Retrieves the profile information for the authenticated user, including their name, email, and avatar.
+* **Endpoint**: `GET /profile`
+* **Command**:
+    ```zsh
+    curl -i http://localhost:8080/api/canvas/profile
+    ```
+
+### 2. Get All Active Courses
 Returns a list of courses where the user is currently active.
 * **Endpoint**: `GET /courses`
 * **Command**:
@@ -22,7 +30,7 @@ Returns a list of courses where the user is currently active.
     curl -i http://localhost:8080/api/canvas/courses
     ```
 
-### 2. Get All Assignments for a Course
+### 3. Get All Assignments for a Course
 Retrieves all assignments for a specific course ID.
 * **Endpoint**: `GET /assignments/{courseId}`
 * **Command**:
@@ -30,7 +38,7 @@ Retrieves all assignments for a specific course ID.
     curl -i http://localhost:8080/api/canvas/assignments/60000000000030087
     ```
 
-### 3. Get Specific Assignment Details
+### 4. Get Specific Assignment Details
 Fetches metadata for a single assignment, including processed description fields.
 * **Endpoint**: `GET /courses/{courseId}/assignments/{assignmentId}`
 * **Command**:
@@ -42,6 +50,15 @@ Fetches metadata for a single assignment, including processed description fields
 
 ## 📦 Data Models
 
+### CanvasUserProfile
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Long | Unique User ID |
+| `name` | String | Full display name |
+| `email` | String | Primary school email address |
+| `avatarUrl` | String | URL to the user's profile picture |
+| `bio` | String | User-defined biography text |
+
 ### CanvasCourse
 | Field | Type | Description |
 | :--- | :--- | :--- |
@@ -50,17 +67,17 @@ Fetches metadata for a single assignment, including processed description fields
 | `courseCode` | String | Short code (e.g., "CS 1D") |
 
 ### CanvasAssignment
-The service now automatically parses the raw HTML description from Canvas into multiple helpful formats:
+The service automatically parses the raw HTML description from Canvas into multiple helpful formats:
 
-| Field | Type | Description                                    |
-| :--- | :--- |:-----------------------------------------------|
-| `id` | Long | Unique Assignment ID                           |
-| `name` | String | Title of the assignment                        |
-| `dueAt` | OffsetDateTime | Date and time due                              |
-| `description` | String | Raw HTML assignment instructions               |
-| `plain_text_description` | String | Instructions with all HTML tags stripped out   |
-| `canvas_file_links` | List\<String\> | Direct URLs to hosted files (PDFs, docs)       |
-| `external_links` | List\<String\> | URLs to external resources (YouTube, IDEs, etc.)|
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Long | Unique Assignment ID |
+| `name` | String | Title of the assignment |
+| `dueAt` | OffsetDateTime | Date and time due |
+| `description` | String | Raw HTML assignment instructions |
+| `plain_text_description` | String | Instructions with all HTML tags stripped out |
+| `canvas_file_links` | List\<String\> | Direct URLs to hosted files (PDFs, docs) |
+| `external_links` | List\<String\> | URLs to external resources (YouTube, IDEs, etc.) |
 
 ---
 
