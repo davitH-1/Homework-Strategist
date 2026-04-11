@@ -1,4 +1,3 @@
-# calendar id:2acf7bf039641a738728e347242e31c6725b7a9f4717b8899ec17ff3ce3cebc8@group.calendar.google.com
 import datetime
 import os.path
 import pickle
@@ -15,6 +14,9 @@ CREDENTIALS_FILE = 'credentials.json'
 CALENDAR_ID = 'hackathon'
 SEARCH_WINDOW_HOURS = 12
 MIN_SLOT_MINUTES = 30
+DAYS_AHEAD = 7
+WORK_START_HOUR = 10
+WORK_END_HOUR = 22
 
 
 def next_10am_local():
@@ -108,6 +110,43 @@ def categorize_slots(slots, interval_minutes=MIN_SLOT_MINUTES):
     return buckets
 
 
+def day_window_boundaries(start, days=DAYS_AHEAD, start_hour=WORK_START_HOUR, end_hour=WORK_END_HOUR):
+    tz = start.tzinfo
+    windows = []
+    for day_offset in range(days):
+        day = start.date() + datetime.timedelta(days=day_offset)
+        window_start = datetime.datetime(day.year, day.month, day.day, start_hour, tzinfo=tz)
+        window_end = datetime.datetime(day.year, day.month, day.day, end_hour, tzinfo=tz)
+        if day_offset == 0 and start > window_start:
+            window_start = start
+        if window_end > window_start:
+            windows.append((window_start, window_end))
+    return windows
+
+
+def find_free_slots_in_week(events, week_windows, min_duration=datetime.timedelta(minutes=MIN_SLOT_MINUTES)):
+    weekly_free = {}
+    for window_start, window_end in week_windows:
+        window_events = [event for event in events if parse_event_time(event['end']) > window_start and parse_event_time(event['start']) < window_end]
+        slots = find_free_slots(window_events, window_start, window_end, min_duration)
+        if slots:
+            weekly_free[window_start.date()] = slots
+    return weekly_free
+
+
+def print_week_free_slots(weekly_free_slots):
+    if not weekly_free_slots:
+        print('No free slots of at least 30 minutes were found for the next week.')
+        return
+    for day in sorted(weekly_free_slots):
+        print(f'\nFree slots for {day.strftime("%A %Y-%m-%d")}:')
+        buckets = categorize_slots(weekly_free_slots[day])
+        for bucket in sorted(buckets.keys(), key=lambda label: int(label.split()[0])):
+            print(f'  {bucket}:')
+            for slot in buckets[bucket]:
+                print(f'    - {format_slot(slot)}')
+
+
 def format_slot(slot):
     start, end, minutes = slot
     return f'{start.isoformat()} → {end.isoformat()} ({minutes} min)'
@@ -129,20 +168,19 @@ def main():
     service = build('calendar', 'v3', credentials=creds)
 
     now = datetime.datetime.now(datetime.timezone.utc).astimezone()
-    today_10pm = now.replace(hour=22, minute=0, second=0, microsecond=0)
-    if now >= today_10pm:
-        print("It is after 10pm, no slots available.")
+    window_start = max(next_10am_local(), now)
+    week_windows = day_window_boundaries(window_start)
+    if not week_windows:
+        print("There are no valid scheduling windows for the next week.")
         return
 
-    window_start = max(next_10am_local(), now)
-    window_end = today_10pm
+    window_end = week_windows[-1][1]
     print(f'Checking free slots from {window_start.isoformat()} to {window_end.isoformat()}')
 
     try:
         events = fetch_events(service, window_start, window_end)
-        free_slots = find_free_slots(events, window_start, window_end)
-        buckets = categorize_slots(free_slots)
-        print_free_slot_buckets(buckets)
+        weekly_free_slots = find_free_slots_in_week(events, week_windows)
+        print_week_free_slots(weekly_free_slots)
     except HttpError as error:
         print(f'An error occurred: {error}')
 
