@@ -1,8 +1,6 @@
 package com.example.homeworkstrateguistsbgradle.canvas.service;
 
-import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasAssignment;
-import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasCourse;
-import com.example.homeworkstrateguistsbgradle.canvas.DTO.CanvasUserProfile;
+import com.example.homeworkstrateguistsbgradle.canvas.DTO.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @Service
@@ -27,33 +26,74 @@ public class CanvasApiService {
     private String baseDomain;
 
     public List<CanvasCourse> getCourses() {
-        String url = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses")
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses")
                 .queryParam("enrollment_state", "active")
                 .queryParam("per_page", "100")
-                .toUriString();
+                .build().toUri();
 
-        // No need to pass token in; it's already a class member
-        return callCanvasApi(url, new ParameterizedTypeReference<List<CanvasCourse>>() {});
+        return callCanvasApi(uri, new ParameterizedTypeReference<List<CanvasCourse>>() {});
     }
 
     public List<CanvasAssignment> getAssignments(Long courseId) {
-        String url = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/assignments")
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/assignments")
                 .queryParam("per_page", "100")
-                .toUriString();
+                .build().toUri();
 
-        return callCanvasApi(url, new ParameterizedTypeReference<List<CanvasAssignment>>() {});
+        return callCanvasApi(uri, new ParameterizedTypeReference<List<CanvasAssignment>>() {});
     }
 
     public CanvasAssignment getAssignmentDetails(Long courseId, Long assignmentId) {
-        String url = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/assignments/" + assignmentId)
-                .toUriString();
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/assignments/" + assignmentId)
+                .build().toUri();
 
-        return callCanvasApi(url, new ParameterizedTypeReference<CanvasAssignment>() {});
+        return callCanvasApi(uri, new ParameterizedTypeReference<CanvasAssignment>() {});
     }
 
-    private <T> T callCanvasApi(String url, ParameterizedTypeReference<T> responseType) {
+    public CanvasUserProfile getUserProfile() {
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/users/self/profile")
+                .build().toUri();
+
+        return callCanvasApi(uri, new ParameterizedTypeReference<CanvasUserProfile>() {});
+    }
+
+    public List<CanvasModule> getModulesWithItems(Long courseId) {
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/modules")
+                .queryParam("include[]", "items")
+                .queryParam("per_page", "50")
+                .build().toUri();
+
+        return callCanvasApi(uri, new ParameterizedTypeReference<List<CanvasModule>>() {});
+    }
+
+    public List<CanvasQuiz> getQuizzes(Long courseId) {
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/quizzes")
+                .queryParam("per_page", "100")
+                .build().toUri();
+
+        return callCanvasApi(uri, new ParameterizedTypeReference<List<CanvasQuiz>>() {});
+    }
+
+    public CanvasQuiz getQuizDetails(Long courseId, Long quizId) {
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/quizzes/" + quizId)
+                .build().toUri();
+
+        return callCanvasApi(uri, new ParameterizedTypeReference<CanvasQuiz>() {});
+    }
+
+    public List<CanvasQuizSubmission> getQuizSubmissions(Long courseId, Long quizId) {
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/quizzes/" + quizId + "/submissions")
+                .build().toUri();
+
+        QuizSubmissionWrapper wrapper = callCanvasApi(uri, new ParameterizedTypeReference<QuizSubmissionWrapper>() {});
+
+        return (wrapper != null && wrapper.getSubmissions() != null)
+                ? wrapper.getSubmissions()
+                : List.of();
+    }
+
+    private <T> T callCanvasApi(URI uri, ParameterizedTypeReference<T> responseType) {
         if (accessToken == null || accessToken.isEmpty()) {
-            System.err.println("ERROR: No Canvas Access Token found in environment variables!");
+            System.err.println("ERROR: No Canvas Access Token found!");
             return null;
         }
 
@@ -62,18 +102,11 @@ public class CanvasApiService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, responseType);
+            ResponseEntity<T> response = restTemplate.exchange(uri, HttpMethod.GET, entity, responseType);
             return response.getBody();
         } catch (Exception e) {
             System.err.println("API ERROR: " + e.getMessage());
             return null;
         }
-    }
-
-    public CanvasUserProfile getUserProfile() {
-        String url = "https://" + baseDomain + "/api/v1/users/self/profile";
-
-        // We use the same callCanvasApi helper you already built
-        return callCanvasApi(url, new ParameterizedTypeReference<CanvasUserProfile>() {});
     }
 }
