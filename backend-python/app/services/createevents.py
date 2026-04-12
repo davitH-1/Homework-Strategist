@@ -8,12 +8,13 @@ from datetime import timedelta
 import os.path
 import pickle
 
-from app.services.findfreeslots import find_free_slots, authenticate, next_10am_local, fetch_events, parse_event_time, day_window_boundaries, CALENDAR_ID
+from app.services.findfreeslots import find_free_slots, authenticate, next_10am_local, fetch_events, parse_event_time, day_window_boundaries
 
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 TOKEN_PATH = 'token.pickle'
 CREDENTIALS_FILE = 'credentials.json'
+CALENDAR_ID = 'hackathon'
 SEARCH_WINDOW_HOURS = 12
 DAYS_AHEAD = 7
 WORK_START_HOUR = 10
@@ -25,9 +26,11 @@ def create_event(service, summary, description, start_time, end_time):
         'description': description,
         'start': {
             'dateTime': start_time.isoformat(),
+            'timeZone': 'America/Los_Angeles'
         },
         'end': {
             'dateTime': end_time.isoformat(),
+            'timeZone': 'America/Los_Angeles'
         },
     }
     return service.events().insert(calendarId=CALENDAR_ID, body=event).execute()

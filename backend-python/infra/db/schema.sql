@@ -43,61 +43,29 @@ CREATE TABLE IF NOT EXISTS `ai_planner`.`courses` (
 -- -----------------------------------------------------
 -- Table `ai_planner`.`assignments` (Maps to CanvasAssignment.java)
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ai_planner`.`assignments` (
-                                                          `id` BIGINT NOT NULL,
-                                                          `course_id` BIGINT NOT NULL,
-                                                          `name` VARCHAR(255) NULL,
-    `due_at` DATETIME NULL,
-    `description` LONGTEXT NULL, -- Uses LONGTEXT for HTML descriptions
-    PRIMARY KEY (`id`),
-    INDEX `fk_assignments_courses_idx` (`course_id` ASC) VISIBLE,
-    CONSTRAINT `fk_assignments_courses`
-    FOREIGN KEY (`course_id`)
-    REFERENCES `ai_planner`.`courses` (`id`)
-    ON DELETE CASCADE)
-    ENGINE = InnoDB;
+CREATE TABLE IF NOT EXISTS `ai_planner`.`user` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `google_token` VARCHAR(256) NOT NULL,
+  `ivc_token` VARCHAR(256) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` TINYINT(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  UNIQUE INDEX `google_token_UNIQUE` (`google_token` ASC) VISIBLE)
+ENGINE = InnoDB;
+
 
 -- -----------------------------------------------------
--- Table `ai_planner`.`quizzes` (Maps to CanvasQuiz.java)
+-- Table `ai_planner`.`status`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ai_planner`.`quizzes` (
-                                                      `id` BIGINT NOT NULL,
-                                                      `course_id` BIGINT NOT NULL,
-                                                      `title` VARCHAR(255) NULL,
-    `html_url` TEXT NULL,
-    `quiz_type` VARCHAR(50) NULL,
-    `time_limit` INT NULL,
-    `allowed_attempts` INT NULL,
-    `due_at` DATETIME NULL,
-    `published` TINYINT(1) NULL,
-    `question_count` INT NULL,
-    PRIMARY KEY (`id`),
-    INDEX `fk_quizzes_courses_idx` (`course_id` ASC) VISIBLE,
-    CONSTRAINT `fk_quizzes_courses`
-    FOREIGN KEY (`course_id`)
-    REFERENCES `ai_planner`.`courses` (`id`)
-    ON DELETE CASCADE)
-    ENGINE = InnoDB;
-
--- -----------------------------------------------------
--- Table `ai_planner`.`quiz_submissions` (Maps to CanvasQuizSubmission.java)
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ai_planner`.`quiz_submissions` (
-                                                               `id` BIGINT NOT NULL,
-                                                               `quiz_id` BIGINT NOT NULL,
-                                                               `user_id` INT NOT NULL,
-                                                               `attempt` INT NULL,
-                                                               `score` DOUBLE NULL,
-                                                               `time_spent` INT NULL, -- Stored in seconds
-                                                               `finished_at` DATETIME NULL,
-                                                               PRIMARY KEY (`id`),
-    INDEX `fk_submissions_quizzes_idx` (`quiz_id` ASC) VISIBLE,
-    INDEX `fk_submissions_user_idx` (`user_id` ASC) VISIBLE,
-    CONSTRAINT `fk_submissions_quizzes`
-    FOREIGN KEY (`quiz_id`)
-    REFERENCES `ai_planner`.`quizzes` (`id`)
-    ON DELETE CASCADE,
-    CONSTRAINT `fk_submissions_user`
+CREATE TABLE IF NOT EXISTS `ai_planner`.`status` (
+  `status` VARCHAR(12) NOT NULL,
+  `description` VARCHAR(256) NULL,
+  `user_id` INT NOT NULL,
+  PRIMARY KEY (`status`),
+  INDEX `fk_table1_user_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_table1_user`
     FOREIGN KEY (`user_id`)
     REFERENCES `ai_planner`.`user` (`id`)
     ON DELETE CASCADE)
