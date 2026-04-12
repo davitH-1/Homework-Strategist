@@ -2,6 +2,8 @@ package com.example.homeworkstrateguistsbgradle.canvas.controller;
 
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.*;
 import com.example.homeworkstrateguistsbgradle.canvas.service.CanvasApiService;
+import com.example.homeworkstrateguistsbgradle.canvas.service.CanvasSyncService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -10,11 +12,24 @@ import java.util.List;
 @RequestMapping("/api/canvas")
 @CrossOrigin(origins = "http://localhost:4200/")
 public class CanvasController {
+    @Autowired
+    private CanvasSyncService canvasSyncService;
 
     private final CanvasApiService canvasService;
 
-    public CanvasController(CanvasApiService canvasService) {
+    public CanvasController(CanvasApiService canvasService, CanvasSyncService canvasSyncService) {
         this.canvasService = canvasService;
+        this.canvasSyncService = canvasSyncService;
+    }
+
+    @PostMapping("/sync")
+    public ResponseEntity<String> triggerDatabaseSync(@RequestParam String googleToken) {
+        try {
+            canvasSyncService.syncCanvasDataForUser(googleToken);
+            return ResponseEntity.ok("Successfully synced Canvas data to MySQL container.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Sync Error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/courses")
@@ -40,11 +55,6 @@ public class CanvasController {
     public CanvasUserProfile getProfile() {
         return canvasService.getUserProfile();
     }
-//    @GetMapping("/profile")
-//    public CanvasUserProfile getProfile(@RequestParam("accessToken") String accessToken) {
-//        // This ensures 'accessToken' in the URL is mapped to this variable
-//        return canvasService.getUserProfile(accessToken);
-//    }
 
     @GetMapping("/courses/{courseId}/modules")
     public List<CanvasModule> getModules(@PathVariable Long courseId) {
@@ -70,31 +80,14 @@ public class CanvasController {
         return canvasService.getQuizSubmissions(courseId, quizId);
     }
 
-//    @GetMapping("/profile")
-//    public CanvasUserProfile getProfile(@RequestParam(required = false) String accessToken) {
-//        // 1. If no token is provided by Angular, use the one already in the service
-//        if (accessToken == null || accessToken.isEmpty()) {
-//            return canvasService.getUserProfile();
-//        }
-//
-//        // 2. If a token IS provided, verify it first
-//        CanvasUserProfile profile = canvasService.getUserProfile();
-//
-//        // 3. If the profile was found (token is good), "Sync" it to the class variable
-//        if (profile != null) {
-//            canvasService.setAccessToken(accessToken);
-//        }
-//
-//        return profile;
-//    }
-@PostMapping("/token")
-@CrossOrigin(origins = "http://localhost:4200") // Ensure no trailing slash here
-public ResponseEntity<String> setToken(@RequestBody String token) {
-    if (token == null || token.isEmpty()) {
-        return ResponseEntity.badRequest().body("Token cannot be empty");
+    @PostMapping("/token")
+    @CrossOrigin(origins = "http://localhost:4200") // Ensure no trailing slash here
+    public ResponseEntity<String> setToken(@RequestBody String token) {
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.badRequest().body("Token cannot be empty");
+        }
+        // Update the service's class variable
+        canvasService.setAccessToken(token);
+        return ResponseEntity.ok("Token synced");
     }
-    // Update the service's class variable
-    canvasService.setAccessToken(token);
-    return ResponseEntity.ok("Token synced");
-}
 }
