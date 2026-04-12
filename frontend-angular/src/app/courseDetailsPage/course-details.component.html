@@ -1,11 +1,11 @@
 <div class="details-container">
   <header class="page-header">
     <div class="header-nav">
-      <button class="back-pill" (click)="goBack()">
+      <button class="back-pill" (click)="goToDashboard()">
         <i class="arrow-icon">←</i> Dashboard
       </button>
     </div>
-    
+
     <h1>Course Assignments</h1>
     <p>Sorted by upcoming due dates</p>
   </header>
@@ -26,7 +26,9 @@
           </span>
         </div>
       </div>
-      <button class="btn-action">View</button>
+      <button class="view-btn" (click)="viewAssignment(assignment.id.toString())">
+        View Details
+      </button>
     </div>
   </div>
 </div>

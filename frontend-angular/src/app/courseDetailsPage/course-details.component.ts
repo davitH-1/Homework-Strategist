@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { CourseService, Assignment } from '../services/course.service';
 
 @Component({
@@ -13,7 +13,7 @@ import { CourseService, Assignment } from '../services/course.service';
 export class CourseDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private courseService = inject(CourseService);
-  private location = inject(Location);
+  private router = inject(Router);
 
   assignments: Assignment[] = [];
   isLoading = true;
@@ -49,7 +49,20 @@ export class CourseDetailsComponent implements OnInit {
     return dueDate < now;
   }
 
-  goBack() {
-    this.location.back(); // Returns to the previous page (Dashboard)
+  viewAssignment(assignmentId: string) {
+    // IMPORTANT: This must match the parameter name used in your route definition
+    // Since your ngOnInit uses 'id', we use 'id' here too.
+    const courseId = this.route.snapshot.paramMap.get('id');
+
+    if (courseId) {
+      this.router.navigate(['/courses', courseId, 'assignments', assignmentId]);
+    } else {
+      console.error("Could not find courseId in route params");
+    }
   }
+
+  goToDashboard() {
+    this.router.navigate(['/courses']);
+  }
+
 }

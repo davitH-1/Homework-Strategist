@@ -1,0 +1,30 @@
+<div class="assignment-details-container" *ngIf="assignment">
+  <nav class="breadcrumb">
+<!--    <a [routerLink]="['/courses', assignment.course_id]">← Back to Course</a>-->
+    <button class="back-pill" (click)="goBack()"><i class="arrow-icon">
+      ←</i> Back to Course
+    </button>
+  </nav>
+
+  <header class="assignment-header">
+    <h1>{{ assignment.name }}</h1>
+    <div class="meta-info">
+      <span class="due-date">
+        <strong>Due:</strong> {{ assignment.due_at | date:'medium' }}
+      </span>
+    </div>
+  </header>
+
+  <hr>
+
+  <section class="description-box">
+    <h3>Instructions</h3>
+    <div class="html-content" [innerHTML]="assignment.description"></div>
+
+    <div *ngIf="!assignment.description" class="no-description">
+      <p>No instructions provided for this assignment.</p>
+    </div>
+  </section>
+</div>
+
+<div *ngIf="isLoading" class="loader">Loading details...</div>

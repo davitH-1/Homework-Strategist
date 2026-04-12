@@ -58,12 +58,7 @@ public class CanvasController {
         return canvasService.getAssignments(courseId);
     }
 
-    @GetMapping("/courses/{courseId}/assignments/{assignmentId}")
-    public CanvasAssignment getAssignmentDetails(
-            @PathVariable Long courseId,
-            @PathVariable Long assignmentId) {
-        return canvasService.getAssignmentDetails(courseId, assignmentId);
-    }
+
 
     @GetMapping("/profile")
     public CanvasUserProfile getProfile() {
@@ -207,4 +202,27 @@ public class CanvasController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/courses/{courseId}/assignments/{assignmentId}")
+    public ResponseEntity<AssignmentEntity> getAssignmentDetails(
+            @PathVariable String courseId,
+            @PathVariable String assignmentId) {
+
+        try {
+            // Convert to Long only when querying the DB to maintain precision
+            Long aId = Long.parseLong(assignmentId);
+
+            return assignmentRepository.findById(aId)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+//    @GetMapping("/courses/{courseId}/assignments/{assignmentId}")
+//    public CanvasAssignment getAssignmentDetails(
+//            @PathVariable Long courseId,
+//            @PathVariable Long assignmentId) {
+//        return canvasService.getAssignmentDetails(courseId, assignmentId);
+//    }
 }

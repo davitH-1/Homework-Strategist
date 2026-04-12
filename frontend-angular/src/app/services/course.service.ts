@@ -29,6 +29,10 @@ export class CourseService {
     // Points to the new /api/canvas/courses/{id}/assignments endpoint
     return this.http.get<Assignment[]>(`${this.baseUrl}/courses/${courseId}/assignments`);
   }
+
+  getAssignmentDetails(courseId: string, assignmentId: string): Observable<Assignment> {
+    return this.http.get<Assignment>(`${this.baseUrl}/courses/${courseId}/assignments/${assignmentId}`);
+  }
 }
 
 export interface Assignment {

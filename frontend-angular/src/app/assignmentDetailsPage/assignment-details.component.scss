@@ -1,0 +1,68 @@
+.assignment-details-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.assignment-header {
+  h1 { font-size: 2rem; color: #1c1e21; margin-bottom: 0.5rem; }
+  .due-date { color: #536471; font-size: 1rem; }
+}
+
+.description-box {
+  margin-top: 2rem;
+  h3 { color: #0f1419; border-bottom: 2px solid #eff3f4; padding-bottom: 0.5rem; }
+}
+
+/* Scoped styles for Canvas HTML content */
+.html-content {
+  line-height: 1.6;
+  color: #24292e;
+  overflow-wrap: break-word;
+
+  ::ng-deep img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  ::ng-deep a { color: #007bff; text-decoration: none; &:hover { text-decoration: underline; } }
+
+  ::ng-deep pre, ::ng-deep code {
+    background: #f6f8fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+}
+
+
+.back-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+
+  &:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+    transform: translateX(-4px);
+  }
+
+  .arrow-icon {
+    font-style: normal;
+    font-weight: bold;
+  }
+}
