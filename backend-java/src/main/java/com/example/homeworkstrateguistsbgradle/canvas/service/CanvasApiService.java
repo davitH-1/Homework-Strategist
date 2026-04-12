@@ -25,6 +25,10 @@ public class CanvasApiService {
     @Value("${canvas.api.domain}")
     private String baseDomain;
 
+    public void setAccessToken(String newToken) {
+        this.accessToken = newToken;
+    }
+
     public List<CanvasCourse> getCourses() {
         URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses")
                 .queryParam("enrollment_state", "active")
@@ -49,12 +53,21 @@ public class CanvasApiService {
         return callCanvasApi(uri, new ParameterizedTypeReference<CanvasAssignment>() {});
     }
 
+//    public CanvasUserProfile getUserProfile(String manualToken) {
+//        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/users/self/profile")
+//                .build().toUri();
+//
+//        // Make sure you call the version of callCanvasApi that accepts the manual token!
+//        return callCanvasApi(uri, new ParameterizedTypeReference<CanvasUserProfile>() {}, manualToken);
+//    }
     public CanvasUserProfile getUserProfile() {
         URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/users/self/profile")
                 .build().toUri();
 
         return callCanvasApi(uri, new ParameterizedTypeReference<CanvasUserProfile>() {});
     }
+
+
 
     public List<CanvasModule> getModulesWithItems(Long courseId) {
         URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/modules")
@@ -106,6 +119,22 @@ public class CanvasApiService {
             return response.getBody();
         } catch (Exception e) {
             System.err.println("API ERROR: " + e.getMessage());
+            return null;
+        }
+    }
+    private <T> T callCanvasApi(URI uri, ParameterizedTypeReference<T> responseType, String manualToken) {
+        if (manualToken == null || manualToken.isEmpty()) {
+            return null;
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(manualToken.trim()); // Use the parameter, not the @Value field
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<T> response = restTemplate.exchange(uri, HttpMethod.GET, entity, responseType);
+            return response.getBody();
+        } catch (Exception e) {
             return null;
         }
     }
