@@ -23,6 +23,201 @@
 }
 
 /* ----------------------------------------------------------- */
+/* Header row with Generate button                             */
+/* ----------------------------------------------------------- */
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.generate-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, box-shadow 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #0069d9;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+/* ----------------------------------------------------------- */
+/* Step progress bar                                           */
+/* ----------------------------------------------------------- */
+.progress-panel {
+  background: #fff;
+  border: 1px solid #e1e8ed;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+
+  &:last-child {
+    flex: 0 0 auto;
+  }
+}
+
+.step-indicator {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #d1d5db;
+  background: #f9fafb;
+  transition: background 0.2s, border-color 0.2s;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.step-body {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0.6rem;
+  min-width: 0;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.step-status {
+  font-size: 0.72rem;
+  text-transform: capitalize;
+  color: #9ca3af;
+  margin-top: 1px;
+}
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 0.5rem;
+  margin-bottom: 1.25rem;
+  transition: background 0.3s;
+
+  &.filled {
+    background: #22c55e;
+  }
+}
+
+// State variants
+.step.pending {
+  .step-indicator {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+  .step-status { color: #3b82f6; }
+  .step-label  { color: #1d4ed8; }
+}
+
+.step.ready {
+  .step-indicator {
+    border-color: #22c55e;
+    background: #dcfce7;
+    color: #16a34a;
+  }
+  .step-status { color: #16a34a; }
+}
+
+.step.failed {
+  .step-indicator {
+    border-color: #ef4444;
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  .step-status { color: #dc2626; }
+  .step-label  { color: #dc2626; }
+}
+
+// Pending spinner dot
+.spinner-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #93c5fd;
+  border-top-color: #3b82f6;
+  animation: spin 0.8s linear infinite;
+  display: block;
+}
+
+/* ----------------------------------------------------------- */
+/* Plan result / error panels                                  */
+/* ----------------------------------------------------------- */
+.plan-panel {
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 0.6rem;
+  }
+
+  .plan-message {
+    margin: 0 0 0.5rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .plan-events {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+.plan-result {
+  background: #edfaf3;
+  border: 1px solid #b2e4c8;
+  color: #1a5c38;
+}
+
+.plan-error {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+}
+
+/* ----------------------------------------------------------- */
 /* 2. Responsive Grid System                                   */
 /* ----------------------------------------------------------- */
 .courses-grid {

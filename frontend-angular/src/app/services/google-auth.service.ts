@@ -78,7 +78,7 @@ export class GoogleAuthService {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const res = await fetch(`${environment.backendUrl}/api/calendar/events`, {
+      const res = await fetch(`${environment.calendarBackendUrl}/api/calendar/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -154,7 +154,7 @@ export class GoogleAuthService {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const res = await fetch(`${environment.backendUrl}/api/auth/google`, {
+      const res = await fetch(`${environment.calendarBackendUrl}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
@@ -177,7 +177,7 @@ export class GoogleAuthService {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const res = await fetch(`${environment.backendUrl}/api/auth/google/calendar`, {
+      const res = await fetch(`${environment.calendarBackendUrl}/api/auth/google/calendar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: resp.code }),

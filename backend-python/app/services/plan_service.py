@@ -1,12 +1,14 @@
 import datetime
+import os
 from typing import List
 
 from googleapiclient.discovery import build
 
+from app.api.routes.auth import get_calendar_credentials
 from app.gemma.ai_model import GemmaModel
 from app.models.plan import Plan, ClassItem
 from app.repositories.plan_repository import PlanRepository
-from app.services.findfreeslots import authenticate, fetch_events, day_window_boundaries, next_10am_local
+from app.services.findfreeslots import fetch_events, day_window_boundaries, next_10am_local
 from app.services.createevents import create_event, find_first_available_week_slot
 
 
@@ -33,8 +35,11 @@ class PlanService:
         return self.gemma.generate(prompt)
 
     def _schedule_on_calendar(self, classes: List[ClassItem]) -> list[str]:
-        creds = authenticate()
+        creds = get_calendar_credentials()
         service = build("calendar", "v3", credentials=creds)
+
+        break_minutes = int(os.getenv("CALENDAR_BREAK_MINUTES", "15"))
+        break_delta = datetime.timedelta(minutes=break_minutes)
 
         now = datetime.datetime.now(datetime.timezone.utc).astimezone()
         window_start = max(next_10am_local(), now)
@@ -63,10 +68,11 @@ class PlanService:
             )
             scheduled_ids.append(created["id"])
 
-            # Add the new event to busy list so next class doesn't overlap
+            # Mark the event + break as busy so the next assignment
+            # is scheduled at least CALENDAR_BREAK_MINUTES after this one ends.
             events.append({
                 "start": {"dateTime": start_time.isoformat()},
-                "end": {"dateTime": actual_end.isoformat()},
+                "end": {"dateTime": (actual_end + break_delta).isoformat()},
             })
 
         return scheduled_ids

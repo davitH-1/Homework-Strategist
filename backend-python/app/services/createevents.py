@@ -12,9 +12,9 @@ from app.services.findfreeslots import find_free_slots, authenticate, next_10am_
 
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-TOKEN_PATH = 'token.pickle'
-CREDENTIALS_FILE = 'credentials.json'
-CALENDAR_ID = 'hackathon'
+TOKEN_PATH = os.getenv('GOOGLE_TOKEN_PATH', 'token.pickle')
+CREDENTIALS_FILE = os.getenv('GOOGLE_CREDENTIALS_FILE', 'credentials.json')
+CALENDAR_ID = os.getenv('GOOGLE_CALENDAR_ID', 'primary')
 SEARCH_WINDOW_HOURS = 12
 DAYS_AHEAD = 7
 WORK_START_HOUR = 10

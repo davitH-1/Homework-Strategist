@@ -3,19 +3,17 @@ package com.example.homeworkstrateguistsbgradle.canvas.controller;
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.*;
 import com.example.homeworkstrateguistsbgradle.canvas.service.CanvasApiService;
 import com.example.homeworkstrateguistsbgradle.canvas.service.CanvasSyncService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/canvas")
-@CrossOrigin(origins = "http://localhost:4200/")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CanvasController {
-    @Autowired
-    private CanvasSyncService canvasSyncService;
 
     private final CanvasApiService canvasService;
+    private final CanvasSyncService canvasSyncService;
 
     public CanvasController(CanvasApiService canvasService, CanvasSyncService canvasSyncService) {
         this.canvasService = canvasService;
@@ -81,7 +79,6 @@ public class CanvasController {
     }
 
     @PostMapping("/token")
-    @CrossOrigin(origins = "http://localhost:4200") // Ensure no trailing slash here
     public ResponseEntity<String> setToken(@RequestBody String token) {
         if (token == null || token.isEmpty()) {
             return ResponseEntity.badRequest().body("Token cannot be empty");

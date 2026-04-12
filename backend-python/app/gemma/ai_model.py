@@ -1,6 +1,8 @@
+import os
+
 from ollama import chat, ChatResponse
 
-MODEL_ID = "gemma4:e4b"
+MODEL_ID = os.getenv("OLLAMA_MODEL_ID", "gemma3:4b")
 
 
 class GemmaModel:

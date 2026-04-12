@@ -1,8 +1,63 @@
 <div class="courses-container">
   <header class="page-header">
-    <h1>Dashboard</h1>
-    <p>View your active Canvas courses</p>
+    <div class="header-row">
+      <div>
+        <h1>Dashboard</h1>
+        <p>View your active Canvas courses</p>
+      </div>
+      <button
+        class="generate-btn"
+        (click)="generatePlan()"
+        [disabled]="planLoading">
+        {{ planLoading ? 'Generating…' : 'Generate Study Plan' }}
+      </button>
+    </div>
   </header>
+
+  <!-- Progress bar -->
+  @if (!steps()[0] || steps()[0].status !== 'idle' || planDone || planFailed) {
+    <div class="progress-panel">
+      <div class="steps">
+        @for (step of steps(); track step.label; let last = $last) {
+          <div class="step" [class]="step.status">
+            <div class="step-indicator">
+              @if (step.status === 'ready') {
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="2,8 6,12 14,4"/>
+                </svg>
+              } @else if (step.status === 'failed') {
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/>
+                </svg>
+              } @else if (step.status === 'pending') {
+                <span class="spinner-dot"></span>
+              }
+            </div>
+            <div class="step-body">
+              <span class="step-label">{{ step.label }}</span>
+              <span class="step-status">{{ step.status }}</span>
+            </div>
+            @if (!last) {
+              <div class="step-connector" [class.filled]="step.status === 'ready'"></div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Plan result -->
+  @if (planDone && planResult()) {
+    <div class="plan-panel plan-result">
+      <h2>AI Study Plan</h2>
+      <p class="plan-message">{{ planResult()!.message }}</p>
+      @if (planResult()!.scheduledEvents.length > 0) {
+        <p class="plan-events">
+          {{ planResult()!.scheduledEvents.length }} event(s) added to your Google Calendar.
+        </p>
+      }
+    </div>
+  }
 
   <div *ngIf="isLoading" class="loading-spinner">
     <div class="spinner"></div>
@@ -11,20 +66,15 @@
 
   <div class="courses-grid" *ngIf="!isLoading">
     <div class="course-card" *ngFor="let course of courses">
-
       <div class="header-image-wrapper">
         @if (course.image_download_url) {
-          <img
-            [src]="course.image_download_url"
-            [alt]="course.name"
-            class="course-banner-img" />
+          <img [src]="course.image_download_url" [alt]="course.name" class="course-banner-img" />
         } @else {
           <div class="card-color-strip">
             <span class="icon-letter">{{ course.course_code[0] }}</span>
           </div>
         }
       </div>
-
       <div class="card-body">
         <h2 [title]="course.name">{{ course.name }}</h2>
         <span class="course-code">{{ course.course_code }}</span>
@@ -32,7 +82,6 @@
           <span class="term-tag">Term: {{ course.enrollment_term_id }}</span>
         </div>
       </div>
-
     </div>
   </div>
 </div>
