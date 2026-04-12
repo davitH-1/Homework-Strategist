@@ -15,6 +15,10 @@ public class CanvasCourse {
 
     @JsonProperty("enrollment_term_id")
     private Long termId;
+
+    // Add this field to handle the banner image
+    @JsonProperty("image_download_url")
+    private String imageDownloadUrl;
 }
 
 

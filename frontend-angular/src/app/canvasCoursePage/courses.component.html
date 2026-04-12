@@ -1,0 +1,38 @@
+<div class="courses-container">
+  <header class="page-header">
+    <h1>Dashboard</h1>
+    <p>View your active Canvas courses</p>
+  </header>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading courses...</p>
+  </div>
+
+  <div class="courses-grid" *ngIf="!isLoading">
+    <div class="course-card" *ngFor="let course of courses">
+
+      <div class="header-image-wrapper">
+        @if (course.image_download_url) {
+          <img
+            [src]="course.image_download_url"
+            [alt]="course.name"
+            class="course-banner-img" />
+        } @else {
+          <div class="card-color-strip">
+            <span class="icon-letter">{{ course.course_code[0] }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="card-body">
+        <h2 [title]="course.name">{{ course.name }}</h2>
+        <span class="course-code">{{ course.course_code }}</span>
+        <div class="card-footer">
+          <span class="term-tag">Term: {{ course.enrollment_term_id }}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

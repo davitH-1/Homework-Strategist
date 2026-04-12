@@ -7,7 +7,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/canvas")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "")
 public class CanvasController {
 
     private final CanvasApiService canvasService;
