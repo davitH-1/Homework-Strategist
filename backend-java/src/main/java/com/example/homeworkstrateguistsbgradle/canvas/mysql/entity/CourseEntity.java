@@ -1,5 +1,6 @@
 package com.example.homeworkstrateguistsbgradle.canvas.mysql.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.Setter;
 @Getter @Setter
 public class CourseEntity {
     @Id
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
     @Column(name = "user_id")
@@ -23,6 +25,7 @@ public class CourseEntity {
 
     @Column(name = "term_id")
     @JsonProperty("term_id")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long termId;
 
     @Column(name = "image_download_url")

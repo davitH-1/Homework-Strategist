@@ -38,9 +38,9 @@ export class CoursesComponent implements OnInit {
   }
 
   // Define the missing method
-  goToCourseDetails(courseId: number) {
+  goToCourseDetails(courseId: string) {
     console.log('Navigating to course:', courseId);
     // For now, this just logs. Later you can use:
-    // this.router.navigate(['/courses', courseId]);
+    this.router.navigate(['/courses', courseId]);
   }
 }

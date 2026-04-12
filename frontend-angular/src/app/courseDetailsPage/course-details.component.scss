@@ -1,0 +1,115 @@
+.due-date {
+  font-size: 0.9rem;
+  color: #657786;
+
+  &.overdue {
+    color: #d93025; // Red color for overdue
+    font-weight: 600;
+  }
+}
+
+.details-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.page-header {
+  margin-bottom: 2.5rem;
+
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #e1e8ed;
+    background: white;
+    color: #1c1e21;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #007bff;
+      color: #007bff;
+      transform: translateX(-2px);
+    }
+  }
+
+  h1 { font-size: 2rem; margin: 0; color: #1c1e21; }
+  p { color: #657786; margin: 0.5rem 0 0; }
+}
+
+.assignment-card {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .status-indicator {
+    width: 4px;
+    height: 40px;
+    background: #28a745; // Default green
+    border-radius: 2px;
+    margin-right: 1.25rem;
+
+    &.overdue { background: #dc3545; }
+  }
+
+  .card-content {
+    flex-grow: 1;
+    h3 { margin: 0 0 0.25rem; font-size: 1.1rem; color: #1c1e21; }
+    .due-text { font-size: 0.9rem; color: #657786; }
+    .urgent { color: #dc3545; font-weight: 600; }
+  }
+
+  .view-btn {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: none;
+    background: #f0f2f5;
+    color: #007bff;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover { background: #e4e6e9; }
+  }
+}
+
+.back-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+
+  &:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+    transform: translateX(-4px);
+  }
+
+  .arrow-icon {
+    font-style: normal;
+    font-weight: bold;
+  }
+}
