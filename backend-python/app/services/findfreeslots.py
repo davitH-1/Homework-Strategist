@@ -11,7 +11,7 @@ from googleapiclient.errors import HttpError
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 TOKEN_PATH = 'token.pickle'
 CREDENTIALS_FILE = 'credentials.json'
-CALENDAR_ID = 'hackathon'
+CALENDAR_ID = os.getenv('GOOGLE_CALENDAR_ID', 'primary')
 SEARCH_WINDOW_HOURS = 12
 MIN_SLOT_MINUTES = 30
 DAYS_AHEAD = 7
