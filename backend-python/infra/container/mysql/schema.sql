@@ -12,8 +12,8 @@ USE `ai_planner` ;
 -- Table `ai_planner`.`user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ai_planner`.`user` (
-                                                   `id` INT NOT NULL AUTO_INCREMENT,
-                                                   `google_token` VARCHAR(512) NOT NULL,
+                                                   `id` BIGINT NOT NULL AUTO_INCREMENT,
+                                                   `google_token` VARCHAR(512) NULL,
     `ivc_token` VARCHAR(512) NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

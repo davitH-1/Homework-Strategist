@@ -1,6 +1,3 @@
-/* ----------------------------------------------------------- */
-/* 1. Page Layout Container                                    */
-/* ----------------------------------------------------------- */
 .courses-container {
   max-width: 1200px;
   margin: 2rem auto;
@@ -8,13 +5,11 @@
 
   header.page-header {
     margin-bottom: 2rem;
-
     h1 {
       font-size: 1.8rem;
       margin: 0;
-      color: #1c1e21; // Dark slate for header
+      color: #1c1e21;
     }
-
     p {
       color: #657786;
       margin-top: 0.2rem;
@@ -22,86 +17,68 @@
   }
 }
 
-/* ----------------------------------------------------------- */
-/* 2. Responsive Grid System                                   */
-/* ----------------------------------------------------------- */
 .courses-grid {
   display: grid;
-  // Automatically fits as many cards as possible, minimum 260px wide.
-  // This pushes cards to fill the upper rows automatically.
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-/* ----------------------------------------------------------- */
-/* 3. Course Card Styling                                      */
-/* ----------------------------------------------------------- */
 .course-card {
   background: #ffffff;
-  border: 1px solid #e1e8ed; // Matches the border style in your auth cards
-  border-radius: 12px; // Modern rounded corners
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease-in-out;
   cursor: pointer;
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #007bff;
   }
 }
 
-/* ----------------------------------------------------------- */
-/* 4. Header Image Section (The "Shape Fix")                   */
-/* ----------------------------------------------------------- */
 .header-image-wrapper {
   width: 100%;
-  // THE FIX: Forces the top section to stay a standard Canvas rectangle shape
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background-color: #f8fafc; // Fallback background while loading
+  background-color: #f8fafc;
 
   .course-banner-img {
     width: 100%;
     height: 100%;
-    // MAGIC: Crops any sized image (like the large CPU image) to fill the 16:9 box perfectly
     object-fit: cover;
-    display: block;
   }
 
   .card-color-strip {
     width: 100%;
     height: 100%;
-    background-color: #007bff; // Standard Canvas/Link blue
+    background: linear-gradient(135deg, #007bff, #0056b3);
     display: flex;
     align-items: center;
     justify-content: center;
 
     .icon-letter {
-      font-size: 2.5rem;
-      color: rgba(255, 255, 255, 0.7); // Faded white initial
+      font-size: 3rem;
+      color: white;
       font-weight: 800;
       text-transform: uppercase;
+      opacity: 0.8;
     }
   }
 }
 
-/* ----------------------------------------------------------- */
-/* 5. Card Body (Title & Term Info)                            */
-/* ----------------------------------------------------------- */
 .card-body {
   padding: 1.25rem;
-  background: white;
-  flex-grow: 1; // Ensures the body fills the remaining card height
+  flex-grow: 1;
 
   h2 {
-    font-size: 1rem;
-    color: #007bff; // Consistent blue for links/titles
+    font-size: 1.1rem;
+    color: #007bff;
     margin: 0 0 0.5rem;
     line-height: 1.4;
-
-    // Standard Canvas truncation: Cuts off long titles after 2 lines
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -113,26 +90,27 @@
     font-size: 0.85rem;
     color: #657786;
     margin-bottom: 0.5rem;
+    font-weight: 500;
   }
 
   .card-footer {
     margin-top: 1rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #f0f2f5; // Subdued divider line
+    border-top: 1px solid #f0f2f5;
 
     .term-tag {
       font-size: 0.75rem;
       color: #a1b0bd;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
   }
 }
 
-/* ----------------------------------------------------------- */
-/* 6. Loading State Spinner                                    */
-/* ----------------------------------------------------------- */
-.loading-spinner {
+.loading-spinner, .empty-state {
   text-align: center;
   margin-top: 4rem;
+  color: #657786;
 
   .spinner {
     width: 40px;
@@ -143,14 +121,8 @@
     margin: 0 auto 1rem;
     animation: spin 1s linear infinite;
   }
-
-  p {
-    color: #657786;
-    font-size: 0.95rem;
-  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }

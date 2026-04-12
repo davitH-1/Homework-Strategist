@@ -10,9 +10,13 @@ plugins {
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
-// This tells Gradle to strictly use Java 17 bytecode
+// This tells Gradle to strictly use Java 21 bytecode
 java {
-    sourceCompatibility = '17'
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
 }
 
 repositories {

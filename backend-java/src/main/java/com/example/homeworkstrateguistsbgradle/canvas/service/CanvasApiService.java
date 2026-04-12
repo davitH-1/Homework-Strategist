@@ -1,6 +1,7 @@
 package com.example.homeworkstrateguistsbgradle.canvas.service;
 
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.*;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -19,22 +20,19 @@ public class CanvasApiService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${canvas.api.token}")
+    @Setter
+//    @Value("${canvas.api.token}")
     private String accessToken;
 
     @Value("${canvas.api.domain}")
     private String baseDomain;
 
-    public void setAccessToken(String newToken) {
-        this.accessToken = newToken;
-    }
-
     public List<CanvasCourse> getCourses() {
         URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses")
-                .queryParam("enrollment_state", "active")
                 .queryParam("per_page", "100")
-                // This is the critical line to get banner images
                 .queryParam("include[]", "course_image")
+                // Remove "active" and use "enrollment_type=student" to see everything you are in
+                .queryParam("enrollment_state", "active")
                 .build().toUri();
 
         return callCanvasApi(uri, new ParameterizedTypeReference<List<CanvasCourse>>() {});
@@ -92,18 +90,22 @@ public class CanvasApiService {
         URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/quizzes/" + quizId)
                 .build().toUri();
 
+        // This call is essential because the list view (Assignments) strips the HTML description
         return callCanvasApi(uri, new ParameterizedTypeReference<CanvasQuiz>() {});
     }
 
     public List<CanvasQuizSubmission> getQuizSubmissions(Long courseId, Long quizId) {
-        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses/" + courseId + "/quizzes/" + quizId + "/submissions")
+        // If quizId is null, use the student submissions endpoint for the whole course
+        String endpoint = (quizId != null)
+                ? "/api/v1/courses/" + courseId + "/quizzes/" + quizId + "/submissions"
+                : "/api/v1/courses/" + courseId + "/students/submissions";
+
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + endpoint)
+                .queryParam("per_page", "100")
                 .build().toUri();
 
         QuizSubmissionWrapper wrapper = callCanvasApi(uri, new ParameterizedTypeReference<QuizSubmissionWrapper>() {});
-
-        return (wrapper != null && wrapper.getSubmissions() != null)
-                ? wrapper.getSubmissions()
-                : List.of();
+        return (wrapper != null) ? wrapper.getSubmissions() : List.of();
     }
 
     private <T> T callCanvasApi(URI uri, ParameterizedTypeReference<T> responseType) {

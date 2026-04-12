@@ -22,4 +22,5 @@ public class AssignmentEntity {
 
     @Column(columnDefinition = "LONGTEXT")
     private String description;
+    
 }
