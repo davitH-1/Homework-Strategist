@@ -154,7 +154,7 @@ import {CanvasAuthComponent} from '../canvasTokenWidget/canvas-auth.component';
     .notice code {
       font-size: 0.82em;
       padding: 0.1em 0.35em;
-      border-radius: 0.25rem;
+      border-radius: 0.5rem;
       background: rgba(0,0,0,0.06);
     }
     .notice a { color: inherit; font-weight: 500; }
@@ -186,20 +186,28 @@ import {CanvasAuthComponent} from '../canvasTokenWidget/canvas-auth.component';
       margin-bottom: 1.5rem;
     }
     .success img {
-      border-radius: 50%;
+      border-radius: 0.5rem;
       object-fit: cover;
     }
     .success .name { font-weight: 600; margin: 0 0 0.15rem; }
     .success .email { margin: 0; font-size: 0.9rem; color: var(--app-muted); }
     .calendar-connect, .calendar-form {
-      padding: 1.25rem;
-      border: 1px solid var(--app-border, #e5e7eb);
-      border-radius: 0.5rem;
+      background: #ffffff; /* Explicitly white */
+      padding: 1.75rem; /* Matches .input-card padding */
+      border: 1px solid #e1e8ed; /* Standard border color */
+      border-radius: 0.5rem; /* Matches Canvas widget radius */
       margin-bottom: 1.25rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03); /* Matches Canvas widget shadow */
+    }
+    .calendar-connect h2, .calendar-form h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.75rem;
     }
     .calendar-connect .hint {
       font-size: 0.875rem;
-      color: var(--app-muted);
+      color: #657786; /* Muted text color */
       line-height: 1.45;
       margin: 0 0 1rem;
     }
@@ -218,7 +226,7 @@ import {CanvasAuthComponent} from '../canvasTokenWidget/canvas-auth.component';
     label input, label textarea {
       padding: 0.45rem 0.6rem;
       border: 1px solid var(--app-border, #d1d5db);
-      border-radius: 0.375rem;
+      border-radius: 0.5rem;
       font: inherit;
       font-size: 0.9rem;
     }
@@ -231,24 +239,27 @@ import {CanvasAuthComponent} from '../canvasTokenWidget/canvas-auth.component';
       padding: 0.5rem 0.75rem;
       background: #fff5f5;
       border: 1px solid #feb2b2;
-      border-radius: 0.375rem;
+      border-radius: 0.5rem;
     }
     .primary {
-      padding: 0.55rem 1.1rem;
-      border-radius: 0.4rem;
+      padding: 12px 20px;
+      border-radius: 8px; /* Matches base-button mixin */
       border: none;
-      background: var(--app-accent, #2563eb);
+      background: #007bff; /* Primary Blue */
       color: #fff;
-      font: inherit;
-      font-weight: 500;
+      font-family: inherit;
+      font-weight: 600;
       cursor: pointer;
-      transition: filter 0.15s;
+      transition: background-color 0.2s, box-shadow 0.2s;
     }
-    .primary:hover:not(:disabled) { filter: brightness(1.08); }
+    .primary:hover:not(:disabled) {
+      background-color: #0069d9; /* Darkened blue on hover */
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    }
     .primary:disabled { opacity: 0.6; cursor: not-allowed; }
     .secondary {
       padding: 0.5rem 1rem;
-      border-radius: 0.4rem;
+      border-radius: 0.5rem;
       border: 1px solid var(--app-border, #d1d5db);
       background: #fff;
       cursor: pointer;
