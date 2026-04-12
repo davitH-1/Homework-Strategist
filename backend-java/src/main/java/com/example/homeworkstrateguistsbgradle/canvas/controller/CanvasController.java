@@ -107,14 +107,15 @@ public class CanvasController {
     public ResponseEntity<String> saveToken(@RequestBody Map<String, String> payload) {
         String canvasToken = payload.get("token");
 
-        // Example logic: Find existing user or create a "Canvas-only" user
+        // 1. Update the service IMMEDIATELY so the next API call uses THIS token
+        canvasService.setAccessToken(canvasToken);
+
+        // 2. Save to DB for persistence
         UserEntity user = userRepository.findByIvcToken(canvasToken)
                 .orElse(new UserEntity());
-
         user.setIvcToken(canvasToken);
-        // user.setGoogleToken(null); // This will now work without crashing
-
         userRepository.save(user);
+
         return ResponseEntity.ok("Token saved successfully");
     }
 

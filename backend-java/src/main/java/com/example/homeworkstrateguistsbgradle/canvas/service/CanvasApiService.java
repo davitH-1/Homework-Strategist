@@ -21,7 +21,7 @@ public class CanvasApiService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Setter
-    @Value("${canvas.api.token}")
+//    @Value("${canvas.api.token}")
     private String accessToken;
 
     @Value("${canvas.api.domain}")
