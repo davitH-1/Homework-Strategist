@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
 
 interface CanvasProfile {
   id: number;
@@ -17,6 +18,7 @@ interface CanvasProfile {
   styleUrl: './canvas-auth.component.scss'
 })
 export class CanvasAuthComponent {
+  private http = inject(HttpClient); // Inject the HTTP service
   accessToken: string = '';
   uniqueId: string = Math.random().toString(36).substring(7);
   profile: CanvasProfile | null = null;
@@ -28,33 +30,41 @@ export class CanvasAuthComponent {
   isLinked: boolean = false;
 
   onSubmitToken() {
-    // If already linked, this button now acts as the "Unlink" trigger
-    if (this.isLinked) {
-      this.onUnlink();
-      return;
-    }
-
-    this.showProfileWidget = false;
-
-    if (!this.accessToken || this.accessToken.trim().length === 0) {
-      this.profile = null;
-      return;
-    }
+    if (this.isLinked) { this.onUnlink(); return; }
+    if (!this.accessToken || this.accessToken.trim().length === 0) return;
 
     this.isLoading = true;
+    this.showProfileWidget = false;
 
-    // Mocking the backend response
-    setTimeout(() => {
-      this.profile = {
-        id: 236306,
-        name: "Erfan Tavassoli",
-        primary_email: "etavassoli1@ivc.edu",
-        avatar_url: "https://ivc-new.instructure.com/images/thumbnails/6008~16519330/UyedxP7Ny2rfqm6Zgzz9IDlyDCEHEk6TDvEizxQM"
-      };
+    const baseUrl = `http://localhost:8080/api/canvas`;
 
-      this.isLoading = false;
-      this.showProfileWidget = true;
-    }, 1200);
+    // STEP 1: Sync Token
+    this.http.post(`${baseUrl}/token`, this.accessToken, { responseType: 'text' })
+      .subscribe({
+        next: () => {
+          console.log('Java synced. Now fetching profile...');
+
+          // STEP 2: Get Profile (Generic call)
+          this.http.get<CanvasProfile>(`${baseUrl}/profile`).subscribe({
+            next: (profileData) => {
+              this.profile = profileData;
+              this.isLoading = false;
+              this.showProfileWidget = true;
+            },
+            error: (err) => {
+              this.isLoading = false;
+              console.error('Profile fetch error:', err);
+              alert('Token set, but Canvas rejected the profile request. Check your token permissions.');
+            }
+          });
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Sync error:', err);
+          // This is where your popup was coming from
+          alert('Backend unreachable. Check if IntelliJ is running and CORS is allowed.');
+        }
+      });
   }
 
   onConfirmIdentity() {
