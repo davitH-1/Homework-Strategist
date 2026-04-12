@@ -4,7 +4,7 @@ LaserHacks project made by Team 2, intended to provide user optimal planning for
 # Description
 Allows the user to have their Canvas course work dates be planned out on their Google Calendar.
 
-# Description
+# Tech Stack
 Spring Boot
 Angular
 MySQL
