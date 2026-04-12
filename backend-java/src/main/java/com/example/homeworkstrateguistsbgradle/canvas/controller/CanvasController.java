@@ -1,8 +1,10 @@
 package com.example.homeworkstrateguistsbgradle.canvas.controller;
 
 import com.example.homeworkstrateguistsbgradle.canvas.DTO.*;
+import com.example.homeworkstrateguistsbgradle.canvas.mysql.entity.AssignmentEntity;
 import com.example.homeworkstrateguistsbgradle.canvas.mysql.entity.CourseEntity;
 import com.example.homeworkstrateguistsbgradle.canvas.mysql.entity.UserEntity;
+import com.example.homeworkstrateguistsbgradle.canvas.mysql.repository.AssignmentRepository;
 import com.example.homeworkstrateguistsbgradle.canvas.mysql.repository.CourseRepository;
 import com.example.homeworkstrateguistsbgradle.canvas.mysql.repository.UserRepository;
 import com.example.homeworkstrateguistsbgradle.canvas.service.CanvasApiService;
@@ -182,6 +184,27 @@ public class CanvasController {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @Autowired
+    private AssignmentRepository assignmentRepository;
+
+    @GetMapping("/courses/{courseId}/assignments")
+    public ResponseEntity<List<AssignmentEntity>> getDatabaseAssignments(@PathVariable String courseId) {
+        Long idAsLong = Long.parseLong(courseId);
+
+
+        try {
+            List<AssignmentEntity> assignments = assignmentRepository.findByCourseId(idAsLong);
+
+            if (assignments.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok(assignments);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

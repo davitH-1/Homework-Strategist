@@ -3,7 +3,7 @@ import { Observable, of, delay } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 
 export interface Course {
-  id: number;
+  id: string;
   name: string;
   course_code: string;
   enrollment_term_id: number;
@@ -24,5 +24,19 @@ export class CourseService {
   getCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(`${this.baseUrl}/courses`);
   }
+
+  getAssignments(courseId: string): Observable<Assignment[]> {
+    // Points to the new /api/canvas/courses/{id}/assignments endpoint
+    return this.http.get<Assignment[]>(`${this.baseUrl}/courses/${courseId}/assignments`);
+  }
 }
+
+export interface Assignment {
+  id: number;
+  course_id: number;
+  name: string;
+  due_at: string | null;
+  description: string;
+}
+
 

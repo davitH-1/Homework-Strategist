@@ -1,0 +1,32 @@
+<div class="details-container">
+  <header class="page-header">
+    <div class="header-nav">
+      <button class="back-pill" (click)="goBack()">
+        <i class="arrow-icon">←</i> Dashboard
+      </button>
+    </div>
+    
+    <h1>Course Assignments</h1>
+    <p>Sorted by upcoming due dates</p>
+  </header>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Retrieving assignments from database...</p>
+  </div>
+
+  <div class="assignment-grid" *ngIf="!isLoading">
+    <div class="assignment-card" *ngFor="let assignment of assignments">
+      <div class="status-indicator" [class.overdue]="isOverdue(assignment.due_at)"></div>
+      <div class="card-content">
+        <h3>{{ assignment.name }}</h3>
+        <div class="meta">
+          <span class="due-text" [class.urgent]="isOverdue(assignment.due_at)">
+            {{ assignment.due_at ? (assignment.due_at | date:'MMM d, h:mm a') : 'No Due Date' }}
+          </span>
+        </div>
+      </div>
+      <button class="btn-action">View</button>
+    </div>
+  </div>
+</div>

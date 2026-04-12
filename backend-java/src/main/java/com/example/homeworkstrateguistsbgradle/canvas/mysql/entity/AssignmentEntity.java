@@ -1,5 +1,6 @@
 package com.example.homeworkstrateguistsbgradle.canvas.mysql.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,9 +11,11 @@ import java.time.LocalDateTime;
 @Getter @Setter
 public class AssignmentEntity {
     @Id
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
     @Column(name = "course_id")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long courseId;
 
     private String name;
@@ -22,5 +25,5 @@ public class AssignmentEntity {
 
     @Column(columnDefinition = "LONGTEXT")
     private String description;
-    
+
 }
