@@ -1,7 +1,7 @@
-import {Component, inject} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 interface CanvasProfile {
   id: number;
@@ -17,20 +17,41 @@ interface CanvasProfile {
   templateUrl: './canvas-auth.component.html',
   styleUrl: './canvas-auth.component.scss'
 })
-export class CanvasAuthComponent {
-  private http = inject(HttpClient); // Inject the HTTP service
+export class CanvasAuthComponent implements OnInit{
+  private http = inject(HttpClient);
   accessToken: string = '';
   uniqueId: string = Math.random().toString(36).substring(7);
   profile: CanvasProfile | null = null;
   isLoading: boolean = false;
   showProfileWidget: boolean = false;
-
-  // --- New State ---
-  // Tracks if the user has confirmed their identity
   isLinked: boolean = false;
 
+  ngOnInit() {
+    this.checkPersistence();
+  }
+
+  private checkPersistence() {
+    const baseUrl = `http://localhost:8080/api/canvas`;
+    // We try to fetch the profile. If it works, the backend already has a valid token.
+    this.http.get<CanvasProfile>(`${baseUrl}/profile`).subscribe({
+      next: (profileData) => {
+        this.profile = profileData;
+        this.isLinked = true;
+        this.showProfileWidget = false;
+      },
+      error: () => {
+        this.isLinked = false;
+        console.log('No active session found.');
+      }
+    });
+  }
+
   onSubmitToken() {
-    if (this.isLinked) { this.onUnlink(); return; }
+    if (this.isLinked) {
+      this.onUnlink();
+      return;
+    }
+
     if (!this.accessToken || this.accessToken.trim().length === 0) return;
 
     this.isLoading = true;
@@ -38,46 +59,76 @@ export class CanvasAuthComponent {
 
     const baseUrl = `http://localhost:8080/api/canvas`;
 
-    // STEP 1: Sync Token
-    this.http.post(`${baseUrl}/token`, this.accessToken, { responseType: 'text' })
-      .subscribe({
-        next: () => {
-          console.log('Java synced. Now fetching profile...');
+    // FAILSAFE: Clear database before setting a new token
+    this.http.delete(`${baseUrl}/clear`).subscribe({
+      next: () => this.proceedToSaveToken(baseUrl),
+      error: (err) => {
+        if (err.status === 200) {
+          this.proceedToSaveToken(baseUrl);
+        } else {
+          this.handleError(err);
+        }
+      }
+    });
+  }
 
-          // STEP 2: Get Profile (Generic call)
-          this.http.get<CanvasProfile>(`${baseUrl}/profile`).subscribe({
-            next: (profileData) => {
-              this.profile = profileData;
-              this.isLoading = false;
-              this.showProfileWidget = true;
-            },
-            error: (err) => {
-              this.isLoading = false;
-              console.error('Profile fetch error:', err);
-              alert('Token set, but Canvas rejected the profile request. Check your token permissions.');
-            }
-          });
+  // Wrap the next steps in a private method
+  private proceedToSaveToken(baseUrl: string) {
+    const body = { token: this.accessToken };
+    this.http.post(`${baseUrl}/token`, body, { responseType: 'text' }).subscribe({
+      next: () => this.fetchProfile(baseUrl),
+      error: (err) => this.handleError(err)
+    });
+  }
+
+  onConfirmIdentity() {
+    if (!this.accessToken) return;
+
+    this.isLoading = true;
+    const baseUrl = `http://localhost:8080/api/canvas`;
+
+    // Calling your @PostMapping("/sync") with ivctoken as a Param
+    this.http.post(`${baseUrl}/sync?ivctoken=${this.accessToken}`, {}, { responseType: 'text' })
+      .subscribe({
+        next: (response) => {
+          console.log('Database sync complete:', response);
+          this.isLinked = true;
+          this.showProfileWidget = false;
+          this.isLoading = false;
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('Sync error:', err);
-          // This is where your popup was coming from
-          alert('Backend unreachable. Check if IntelliJ is running and CORS is allowed.');
+          console.error('Sync failed:', err);
+          alert('Identity confirmed, but data sync failed.');
         }
       });
   }
 
-  onConfirmIdentity() {
-    this.isLinked = true;
-    this.showProfileWidget = false; // Hide preview as requested
-    console.log('Account linked for:', this.profile?.name);
+  onUnlink() {
+    const baseUrl = `http://localhost:8080/api/canvas`;
+    this.isLoading = true;
+
+    // Call /clear to wipe the DB and the token association in Java
+    this.http.delete(`${baseUrl}/clear`).subscribe({
+      next: () => this.resetLocalState(),
+      error: (err) => {
+        // Failsafe: if Spring returns 200 but Angular fails to parse the JSON
+        if (err.status === 200) {
+          this.resetLocalState();
+        } else {
+          this.handleError(err);
+        }
+      }
+    });
   }
 
-  onUnlink() {
+// Helper to keep code DRY
+  private resetLocalState() {
     this.isLinked = false;
     this.accessToken = '';
     this.profile = null;
     this.showProfileWidget = false;
+    this.isLoading = false;
   }
 
   onReset() {
@@ -85,4 +136,27 @@ export class CanvasAuthComponent {
     this.profile = null;
     this.showProfileWidget = false;
   }
+
+  private fetchProfile(baseUrl: string) {
+    this.http.get<CanvasProfile>(`${baseUrl}/profile`).subscribe({
+      next: (profileData) => {
+        this.profile = profileData;
+        this.isLoading = false;
+        this.showProfileWidget = true;
+      },
+      // error: (err) => this.handleError(err)
+    });
+  }
+  private handleError(err: any) {
+    this.isLoading = false;
+    console.error('Detailed Error:', err);
+
+    // Don't show alert if the status is actually successful
+    if (err.status >= 200 && err.status < 300) {
+      return;
+    }
+
+    alert(`Error: ${err.message || 'Communication error with backend'}`);
+  }
+
 }

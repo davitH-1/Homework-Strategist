@@ -34,90 +34,139 @@ public class CanvasSyncService {
     }
 
     @Transactional
-    public void syncCanvasDataForUser(String googleToken) {
-        UserEntity user = userRepository.findByGoogleToken(googleToken)
+    public void syncCanvasDataForUser(String ivctoken) {
+        UserEntity user = userRepository.findByIvcToken(ivctoken)
                 .orElseThrow(() -> new RuntimeException("User not found in DB"));
 
         List<CanvasCourse> canvasCourses = canvasApiService.getCourses();
         if (canvasCourses == null) return;
 
+        // JUST ONE LOOP
         for (CanvasCourse courseDto : canvasCourses) {
             Long courseId = courseDto.getId();
-            for (CanvasCourse dto : canvasCourses) {
-                // 1. Sync Course
-                CourseEntity course = new CourseEntity();
-                course.setId(dto.getId());
-                course.setUserId(user.getId());
-                course.setName(dto.getName());
-                course.setCourseCode(dto.getCourseCode());
-                course.setTermId(dto.getTermId());
-                course.setImageDownloadUrl(dto.getImageDownloadUrl());
-                courseRepository.save(course);
 
-                throttle();
+            // 1. Sync Course
+            CourseEntity course = new CourseEntity();
+            course.setId(courseId);
+            course.setUserId(user.getId());
+            course.setName(courseDto.getName());
+            course.setCourseCode(courseDto.getCourseCode());
+            course.setTermId(courseDto.getTermId());
+            course.setImageDownloadUrl(courseDto.getImageDownloadUrl());
+            courseRepository.save(course);
 
-                // 2. Sync Assignments
-                List<CanvasAssignment> assignments = canvasApiService.getAssignments(dto.getId());
-                if (assignments != null) {
-                    for (CanvasAssignment aDto : assignments) {
-                        AssignmentEntity assign = new AssignmentEntity();
-                        assign.setId(aDto.getId());
-                        assign.setCourseId(dto.getId());
-                        assign.setName(aDto.getName());
-                        if (aDto.getDueAt() != null) {
-                            assign.setDueAt(aDto.getDueAt().toLocalDateTime());
+            throttle();
+
+            // 2. Sync Assignments & Pivot for Quizzes
+            List<CanvasAssignment> assignments = canvasApiService.getAssignments(courseId);
+            if (assignments != null) {
+                for (CanvasAssignment aDto : assignments) {
+                    // Save the Assignment as usual
+                    AssignmentEntity assign = new AssignmentEntity();
+                    assign.setId(aDto.getId());
+                    assign.setCourseId(courseId);
+                    assign.setName(aDto.getName());
+                    assign.setDescription(aDto.getDescription()); // Assignments have their own description
+                    if (aDto.getDueAt() != null) {
+                        assign.setDueAt(aDto.getDueAt().toLocalDateTime());
+                    }
+                    assignmentRepository.save(assign);
+
+                    // PIVOT: If this assignment is actually a quiz, get the "Deep" details
+                    if (aDto.getQuizId() != null) {
+                        CanvasQuiz fullQuiz = canvasApiService.getQuizDetails(courseId, aDto.getQuizId());
+
+                        if (fullQuiz != null) {
+                            QuizEntity quiz = new QuizEntity();
+                            quiz.setId(fullQuiz.getId());
+                            quiz.setCourseId(courseId);
+                            quiz.setTitle(fullQuiz.getTitle());
+                            quiz.setDescription(fullQuiz.getDescription());
+                            quiz.setTimeLimit(fullQuiz.getTimeLimit());
+                            quiz.setQuestionCount(fullQuiz.getQuestionCount());
+
+                            // ADD THIS: Map the Due Date
+                            if (fullQuiz.getDueAt() != null) {
+                                // Re-use the logic you used for Assignments
+                                quiz.setDueAt(fullQuiz.getDueAt().toLocalDateTime());
+                            }
+
+                            quizRepository.save(quiz);
                         }
-                        assign.setDescription(aDto.getDescription());
-                        assignmentRepository.save(assign);
                     }
                 }
-                throttle();
+            }
 
-                // 3. sync modules
-                List<CanvasModule> modules = canvasApiService.getModulesWithItems(courseId);
-                if (modules != null) {
-                    for (CanvasModule moduleDto : modules) {
-                        ModuleEntity module = new ModuleEntity();
-                        module.setId(moduleDto.getId());
-                        module.setCourseId(courseId);
-                        module.setName(moduleDto.getName());
-//                        if (moduleDto.getDescription() != null) {
-//                            module.setDescription(moduleDto.getDescription());
-//                        }
-                        moduleRepository.save(module);
-                    }
+            throttle();
+
+            // 3. Sync Modules
+            List<CanvasModule> modules = canvasApiService.getModulesWithItems(courseId);
+            if (modules != null) {
+                for (CanvasModule moduleDto : modules) {
+                    ModuleEntity module = new ModuleEntity();
+                    module.setId(moduleDto.getId());
+                    module.setCourseId(courseId);
+                    module.setName(moduleDto.getName());
+                    moduleRepository.save(module);
                 }
-                throttle();
+            }
 
-                // 4. NEW: Sync Quizzes
-                List<CanvasQuiz> quizzes = canvasApiService.getQuizzes(courseId);
-                if (quizzes != null) {
-                    for (CanvasQuiz quizDto : quizzes) {
+            throttle();
+
+            // 4. Sync Quizzes (Deep Sync for full metadata)
+            List<CanvasQuiz> quizzes = canvasApiService.getQuizzes(courseId);
+
+            if (quizzes != null) {
+                System.out.println("DEBUG: Course " + courseId + " - Found " + quizzes.size() + " quizzes.");
+
+                for (CanvasQuiz qDto : quizzes) {
+                    // CALL THE API AGAIN: Get full details for THIS specific quiz
+                    // This ensures fields like description, time_limit, and question_count are populated
+                    CanvasQuiz fullQuiz = canvasApiService.getQuizDetails(courseId, qDto.getId());
+
+                    if (fullQuiz != null) {
+                        System.out.println("DEBUG: Deep Syncing Quiz ID: " + fullQuiz.getId() + " | Title: " + fullQuiz.getTitle());
+
                         QuizEntity quiz = new QuizEntity();
-                        quiz.setId(quizDto.getId());
+                        quiz.setId(fullQuiz.getId());
                         quiz.setCourseId(courseId);
-                        quiz.setTitle(quizDto.getTitle());
+                        quiz.setTitle(fullQuiz.getTitle());
+
+                        // These fields usually require the 'getQuizDetails' call
+                        quiz.setDescription(fullQuiz.getDescription());
+                        quiz.setTimeLimit(fullQuiz.getTimeLimit());
+                        quiz.setQuestionCount(fullQuiz.getQuestionCount());
+
                         quizRepository.save(quiz);
                     }
-                }
 
-//                // 5. NEW: Sync Quiz Submissions (If Entity exists)
-//                // NOTE: Quizzes can have hundreds of submissions. Doing this per quiz
-//                // might slow down the sync significantly. Use carefully.
-//                List<CanvasQuizSubmission> submissions = canvasApiService.getQuizSubmissions(courseId, 0L);
-//                // You may need to handle pagination here if Canvas API returns many submissions
-//                if (submissions != null) {
-//                    for (CanvasQuizSubmission subDto : submissions) {
-//                        // Ensure you have a QuizSubmissionEntity defined in your project
-//                        // If you haven't created it yet, you only need the logic for Modules/Quizzes first.
-//                        // Example:
-//                        // QuizSubmissionEntity submission = new QuizSubmissionEntity();
-//                        // submission.setQuizId(quizDto.getId()); // Link to quiz
-//                        // submission.setUserId(subDto.getUserId()); // Link to user
-//                        // submissionRepository.save(submission);
-//                    }
-//                }
+                    // Short throttle to avoid hitting the rate limit since we are making N extra calls
+                    try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                }
             }
+
+            // 5. Sync Quiz Submissions
+// Fetching all submissions for the course is often more efficient than per-quiz
+            List<CanvasQuizSubmission> submissions = canvasApiService.getQuizSubmissions(courseId, null);
+
+            if (submissions != null) {
+                for (CanvasQuizSubmission subDto : submissions) {
+                    QuizSubmissionEntity subEntity = new QuizSubmissionEntity();
+                    subEntity.setId(subDto.getId());
+                    subEntity.setQuizId(subDto.getQuizId());
+                    subEntity.setUserId(subDto.getUserId());
+                    subEntity.setAttempt(subDto.getAttempt());
+                    subEntity.setScore(subDto.getScore());
+                    subEntity.setTimeSpent(subDto.getTimeSpent());
+
+                    if (subDto.getFinishedAt() != null) {
+                        subEntity.setFinishedAt(subDto.getFinishedAt().toLocalDateTime());
+                    }
+
+                    quizSubmissionRepository.save(subEntity);
+                }
+            }
+            throttle();
         }
     }
 

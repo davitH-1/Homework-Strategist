@@ -1,5 +1,6 @@
 package com.example.homeworkstrateguistsbgradle.canvas.mysql.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,11 +18,14 @@ public class CourseEntity {
     private String name;
 
     @Column(name = "course_code")
+    @JsonProperty("course_code")
     private String courseCode;
 
     @Column(name = "term_id")
+    @JsonProperty("term_id")
     private Long termId;
 
-    @Column(name = "image_download_url", columnDefinition = "TEXT")
+    @Column(name = "image_download_url")
+    @JsonProperty("image_download_url") // This ensures the JSON sent to Angular has the underscores
     private String imageDownloadUrl;
 }

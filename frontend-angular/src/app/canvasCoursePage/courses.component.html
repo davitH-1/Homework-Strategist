@@ -9,27 +9,31 @@
     <p>Loading courses...</p>
   </div>
 
+  <div *ngIf="!isLoading && courses.length === 0" class="empty-state">
+    <p>No courses found. Ensure your backend is syncing correctly.</p>
+  </div>
+
   <div class="courses-grid" *ngIf="!isLoading">
-    <div class="course-card" *ngFor="let course of courses">
+    <div class="course-card clickable"
+         *ngFor="let course of courses"
+         (click)="goToCourseDetails(course.id)">
 
       <div class="header-image-wrapper">
-        @if (course.image_download_url) {
-          <img
-            [src]="course.image_download_url"
-            [alt]="course.name"
-            class="course-banner-img" />
-        } @else {
-          <div class="card-color-strip">
-            <span class="icon-letter">{{ course.course_code[0] }}</span>
-          </div>
-        }
+        <img *ngIf="course.image_download_url"
+             [src]="course.image_download_url"
+             [alt]="course.name"
+             class="course-banner-img" />
+
+        <div *ngIf="!course.image_download_url" class="card-color-strip">
+          <span class="icon-letter">{{ course.name ? course.name[0] : 'C' }}</span>
+        </div>
       </div>
 
       <div class="card-body">
         <h2 [title]="course.name">{{ course.name }}</h2>
         <span class="course-code">{{ course.course_code }}</span>
         <div class="card-footer">
-          <span class="term-tag">Term: {{ course.enrollment_term_id }}</span>
+          <span class="term-tag">Term ID: {{ course.term_id }}</span>
         </div>
       </div>
 

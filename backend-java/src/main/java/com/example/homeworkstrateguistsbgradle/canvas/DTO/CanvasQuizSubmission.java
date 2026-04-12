@@ -14,7 +14,7 @@ public class CanvasQuizSubmission {
     private Long quizId;
 
     @JsonProperty("user_id")
-    private Long userId;
+    private Integer userId;
 
     private Integer attempt;
 

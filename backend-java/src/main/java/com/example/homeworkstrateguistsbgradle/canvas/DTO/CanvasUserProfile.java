@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CanvasUserProfile {
-    private Long id;
+    private Integer id;
     private String name;
 
     @JsonProperty("primary_email")

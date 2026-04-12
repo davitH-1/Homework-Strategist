@@ -25,6 +25,10 @@ public class CanvasAssignment {
 
     private String description;
 
+    // Inside CanvasAssignment.java
+    @JsonProperty("quiz_id")
+    private Long quizId; // This is the key that links the assignment to the quiz details
+
     /**
      * Extracts only the text from the HTML description.
      * Useful for mobile previews or text-only displays.
@@ -70,4 +74,8 @@ public class CanvasAssignment {
                 .map(element -> element.attr("href"))
                 .collect(Collectors.toList());
     }
+
+    // Inside CanvasAssignment.java
+    @JsonProperty("submission_types")
+    private List<String> submissionTypes;
 }
