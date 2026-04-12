@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `ai_planner`.`user` (
   `status` TINYINT(1) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `google_tiken_UNIQUE` (`google_token` ASC) VISIBLE)
+  UNIQUE INDEX `google_token_UNIQUE` (`google_token` ASC) VISIBLE)
 ENGINE = InnoDB;
 
 
