@@ -29,6 +29,8 @@ public class CanvasApiService {
         URI uri = UriComponentsBuilder.fromHttpUrl("https://" + baseDomain + "/api/v1/courses")
                 .queryParam("enrollment_state", "active")
                 .queryParam("per_page", "100")
+                // This is the critical line to get banner images
+                .queryParam("include[]", "course_image")
                 .build().toUri();
 
         return callCanvasApi(uri, new ParameterizedTypeReference<List<CanvasCourse>>() {});
